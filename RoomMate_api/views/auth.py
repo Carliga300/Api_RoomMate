@@ -34,31 +34,35 @@ class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
-
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        if user.is_active:
 
+        if user.is_active:
             roles = user.groups.all()
             role_names = []
             for role in roles:
                 role_names.append(role.name)
 
-            profile = Profiles.objects.filter(user=user).first()
-            if not profile:
-                return Response({},404)
+            # Si solo es un rol específico, asignamos el elemento 0
+            if len(role_names) > 0:
+                role_names = role_names[0]
 
             token, created = Token.objects.get_or_create(user=user)
 
-            return Response({
-                'id': user.pk,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'token': token.key,
-                'roles': role_names
+            if role_names == 'Estudiante':
+                cliente = Cliente.objects.filter(user=user).first()
+                cliente_data = ClienteSerializer(cliente).data
+                cliente_data["token"] = token.key
+                cliente_data["rol"] = "Estudiante"
+                return Response(cliente_data, status=status.HTTP_200_OK)
+            
+            if role_names == 'Propietario':
+                cliente = Cliente.objects.filter(user=user).first()
+                cliente_data = ClienteSerializer(cliente).data
+                cliente_data["token"] = token.key
+                cliente_data["rol"] = "Propietario"
+                return Response(cliente_data, status=status.HTTP_200_OK)
 
-            })
         return Response({}, status=status.HTTP_403_FORBIDDEN)
 
 

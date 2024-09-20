@@ -1,4 +1,4 @@
 from django.contrib import admin
 from RoomMate_api.models import *
 
-admin.site.register(Profiles)
+admin.site.register(Cliente)

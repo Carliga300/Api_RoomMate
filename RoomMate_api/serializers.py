@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from RoomMate_api.models import *
 
+
 class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     first_name = serializers.CharField(required=True)
@@ -12,14 +13,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id','first_name','last_name', 'email')
 
-class ProfilesSerializer(serializers.ModelSerializer):
+class ClienteSerializer(serializers.ModelSerializer):
     user=UserSerializer(read_only=True)
     class Meta:
-        model = Profiles
+        model = Cliente
         fields = "__all__"
-class ProfilesAllSerializer(serializers.ModelSerializer):
-    #user=UserSerializer(read_only=True)
-    class Meta:
-        model = Profiles
-        fields = '__all__'
-        depth = 1
+
