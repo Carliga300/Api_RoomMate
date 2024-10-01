@@ -34,8 +34,8 @@ class ClienteAll(generics.CreateAPIView):
     #Esta linea se usa para pedir el token de autenticación de inicio de sesión
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request, *args, **kwargs):
-        admin = Cliente.objects.filter(user__is_active = 1).order_by("id")
-        lista = ClienteSerializer(admin, many=True).data
+        cliente = Cliente.objects.filter(user__is_active = 1).order_by("id")
+        lista = ClienteSerializer(cliente, many=True).data
         
         return Response(lista, 200)
 
@@ -43,10 +43,10 @@ class ClienteView(generics.CreateAPIView):
     #Obtener usuario por ID
     # permission_classes = (permissions.IsAuthenticated,)
     def get(self, request, *args, **kwargs):
-        admin = get_object_or_404(Cliente, id = request.GET.get("id"))
-        admin = ClienteSerializer(admin, many=False).data
+        cliente = get_object_or_404(Cliente, id = request.GET.get("id"))
+        cliente = ClienteSerializer(cliente, many=False).data
 
-        return Response(admin, 200)
+        return Response(cliente, 200)
     
     #Registrar nuevo usuario
     @transaction.atomic
@@ -81,10 +81,37 @@ class ClienteView(generics.CreateAPIView):
             user.save()
 
             #Create a profile for the user
-            admin = Cliente.objects.create(user=user,
-                                            telefono= request.data["telefono"],)
-            admin.save()
+            cliente = Cliente.objects.create(user=user,
+                                            telefono= request.data["telefono"],
+                                            rol= request.data["rol"])
+            cliente.save()
 
-            return Response({"cliente_created_id": admin.id }, 201)
+            return Response({"cliente_created_id": cliente.id }, 201)
 
         return Response(user.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ClienteViewEdit(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def put(self, request, *args, **kwargs):
+            # iduser=request.data["id"]
+            cliente = get_object_or_404(Cliente, id=request.data["id"])
+            cliente.telefono = request.data["telefono"]
+            cliente.save()
+            temp = cliente.user
+            temp.first_name = request.data["first_name"]
+            temp.last_name = request.data["last_name"]
+            temp.password = request.data["password"]
+            temp.email= request.data["email"]
+            temp.save()
+            user = ClienteSerializer(cliente, many=False).data
+
+            return Response(user,200)
+    
+    #Eliminar maestro
+    def delete(self, request, *args, **kwargs):
+        cliente = get_object_or_404(Cliente, id=request.GET.get("id"))
+        try:
+            cliente.user.delete()
+            return Response({"details":"Cliente eliminado"},200)
+        except Exception as e:
+            return Response({"details":"Algo pasó al eliminar"},400)

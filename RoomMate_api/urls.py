@@ -22,8 +22,10 @@ from RoomMate_api.views import auth
 urlpatterns = [
     #Version
         path('bootstrap/version', bootstrap.VersionView.as_view()),
-    #Create Admin
-        path('admin/', users.ClienteView.as_view()),
+    #Crear Cliente/Usuario
+        path('usuarios/', users.ClienteView.as_view()),
+    #Editar Cliente/Usuario
+        path('usuarios-edit/',users.ClienteViewEdit.as_view()),
     #Login
         path('token/', auth.CustomAuthToken.as_view()),
     #Logout
