@@ -26,6 +26,7 @@ from django_filters import rest_framework as filters
 from datetime import datetime
 from django.conf import settings
 from django.template.loader import render_to_string
+from rest_framework.exceptions import ValidationError
 import string
 import random
 import json
@@ -93,19 +94,22 @@ class ClienteView(generics.CreateAPIView):
 class ClienteViewEdit(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     def put(self, request, *args, **kwargs):
-            # iduser=request.data["id"]
-            cliente = get_object_or_404(Cliente, id=request.data["id"])
-            cliente.telefono = request.data["telefono"]
-            cliente.save()
-            temp = cliente.user
-            temp.first_name = request.data["first_name"]
-            temp.last_name = request.data["last_name"]
-            temp.password = request.data["password"]
-            temp.email= request.data["email"]
-            temp.save()
-            user = ClienteSerializer(cliente, many=False).data
-
-            return Response(user,200)
+        if "id" not in request.data:
+            raise ValidationError({"id": "Este campo es requerido."})
+ 
+        cliente = get_object_or_404(Cliente, id=request.data["id"])
+        cliente.telefono = request.data.get("telefono", cliente.telefono)
+        cliente.save()
+ 
+        temp = cliente.user
+        temp.first_name = request.data.get("first_name", temp.first_name)
+        temp.last_name = request.data.get("last_name", temp.last_name)
+        temp.password = request.data.get("password", temp.password)
+        temp.email = request.data.get("email", temp.email)
+        temp.save()
+ 
+        user = ClienteSerializer(cliente, many=False).data
+        return Response(user, 200)
     
     #Eliminar maestro
     def delete(self, request, *args, **kwargs):
