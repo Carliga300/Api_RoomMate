@@ -18,4 +18,9 @@ class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = "__all__"
+        
+class PropiedadesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Propiedades
+        fields = '__all__'
 

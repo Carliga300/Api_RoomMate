@@ -18,14 +18,25 @@ from django.urls import path
 from RoomMate_api.views import bootstrap
 from RoomMate_api.views import users
 from RoomMate_api.views import auth
+from RoomMate_api.views import propiedad
 
 urlpatterns = [
     #Version
         path('bootstrap/version', bootstrap.VersionView.as_view()),
-    #Create Admin
-        path('admin/', users.ClienteView.as_view()),
+    #Crear Cliente/Usuario
+        path('usuarios/', users.ClienteView.as_view()),
+    #Editar Cliente/Usuario
+        path('usuarios-edit/',users.ClienteViewEdit.as_view()),
     #Login
         path('token/', auth.CustomAuthToken.as_view()),
     #Logout
-        path('logout/', auth.Logout.as_view())
+        path('logout/', auth.Logout.as_view()),
+        
+    #Create Materias
+        path('propiedades/', propiedad.PropiedadesView.as_view()),   
+    #Maestro Data
+        path('lista-propiedades/', propiedad.PropiedadesAll.as_view()),
+    #Edit Materia
+        path('propiedades-edit/', propiedad.PropiedadViewEdit.as_view())
+
 ]
